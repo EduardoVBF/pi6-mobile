@@ -147,7 +147,8 @@ export default function AbastecimentoScreen() {
               </Text>
               <Switch
                 value={formData.isFullTank}
-                trackColor={{ false: "#767577", true: "#8a0194" }}
+                trackColor={{ false: "#adaaaa", true: "#8a0194" }}
+                thumbColor={"#8a0194"}
                 onValueChange={(v) => handleChange("isFullTank", v)}
               />
             </View>

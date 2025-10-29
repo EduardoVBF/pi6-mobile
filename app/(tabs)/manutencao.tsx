@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   StyleSheet,
-  TextInput,
   Text,
   TouchableOpacity,
   Alert,
@@ -9,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   View,
+  Switch,
+  TextInput,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,28 +19,38 @@ import { ThemedText } from "@/components/themed-text";
 export default function ManutencaoScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
-    tipo: "",
-    kmTroca: "",
-    proximaTroca: "",
-    status: "Regular",
-    dataUltimaTroca: "",
-    responsavel: "",
-    custo: "",
     placa: "",
+    kmAtual: "",
+    manutencoes: {
+      oleo: false,
+      filtroOleo: false,
+      filtroCombustivel: false,
+      filtroAr: false,
+      engraxamento: false,
+    },
   });
 
-  const handleChange = (key: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  };
+  const handleChange = (key: string, value: string) =>
+    setFormData((p) => ({ ...p, [key]: value }));
+
+  const toggleManutencao = (key: keyof typeof formData.manutencoes) =>
+    setFormData((p) => ({
+      ...p,
+      manutencoes: { ...p.manutencoes, [key]: !p.manutencoes[key] },
+    }));
 
   const handleSubmit = () => {
     setIsLoading(true);
+    // aqui você integra com backend ou salva localmente
+    console.log("Enviar payload:", formData);
+
     setTimeout(() => {
       setIsLoading(false);
-      Alert.alert("✅ Sucesso", "Manutenção adicionada com sucesso!");
+      Alert.alert("✅ Sucesso", "Manutenção registrada.");
       router.push("/");
-    }, 700);
+    }, 800);
   };
 
   return (
@@ -59,7 +70,7 @@ export default function ManutencaoScreen() {
           </ThemedText>
 
           <View style={styles.card}>
-            <Text style={styles.label}>Veículo</Text>
+            <Text style={styles.label}>Placa</Text>
             <TextInput
               placeholder="Placa do veículo"
               placeholderTextColor="#9CA3AF"
@@ -68,71 +79,69 @@ export default function ManutencaoScreen() {
               onChangeText={(t) => handleChange("placa", t)}
             />
 
-            <Text style={styles.label}>Tipo</Text>
+            <Text style={styles.label}>KM Atual</Text>
             <TextInput
-              placeholder="Tipo de manutenção"
+              placeholder="KM atual"
               placeholderTextColor="#9CA3AF"
-              style={styles.input}
-              value={formData.tipo}
-              onChangeText={(t) => handleChange("tipo", t)}
-            />
-
-            <Text style={styles.label}>KM Manutenção</Text>
-            <TextInput
-              placeholder="KM atual da troca"
               keyboardType="numeric"
-              placeholderTextColor="#9CA3AF"
               style={styles.input}
-              value={formData.kmTroca}
-              onChangeText={(t) => handleChange("kmTroca", t)}
+              value={formData.kmAtual}
+              onChangeText={(t) => handleChange("kmAtual", t)}
             />
 
-            <Text style={styles.label}>Próxima Troca (km)</Text>
-            <TextInput
-              placeholder="KM da próxima troca"
-              keyboardType="numeric"
-              placeholderTextColor="#9CA3AF"
-              style={styles.input}
-              value={formData.proximaTroca}
-              onChangeText={(t) => handleChange("proximaTroca", t)}
-            />
+            <Text style={[styles.label, { marginTop: 12 }]}>
+              Manutenções Realizadas
+            </Text>
 
-            <Text style={styles.label}>Status</Text>
-            <TextInput
-              placeholder="Regular / Próximo / Atrasado"
-              placeholderTextColor="#9CA3AF"
-              style={styles.input}
-              value={formData.status}
-              onChangeText={(t) => handleChange("status", t)}
-            />
+            <View style={styles.switchRow}>
+              <Switch
+                value={formData.manutencoes.oleo}
+                onValueChange={() => toggleManutencao("oleo")}
+                trackColor={{ false: "#adaaaa", true: "#8a0194" }}
+                thumbColor={"#8a0194"}
+              />
+              <Text style={styles.switchLabel}>Troca de óleo</Text>
+            </View>
 
-            <Text style={styles.label}>Custo</Text>
-            <TextInput
-              placeholder="Custo da manutenção"
-              keyboardType="numeric"
-              placeholderTextColor="#9CA3AF"
-              style={styles.input}
-              value={formData.custo}
-              onChangeText={(t) => handleChange("custo", t)}
-            />
+            <View style={styles.switchRow}>
+              <Switch
+                value={formData.manutencoes.filtroOleo}
+                onValueChange={() => toggleManutencao("filtroOleo")}
+                trackColor={{ false: "#adaaaa", true: "#8a0194" }}
+                thumbColor={"#8a0194"}
+              />
+              <Text style={styles.switchLabel}>Filtro de óleo</Text>
+            </View>
 
-            {/* <Text style={styles.label}>Data Última Troca</Text>
-            <TextInput
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#9CA3AF"
-              style={styles.input}
-              value={formData.dataUltimaTroca}
-              onChangeText={(t) => handleChange("dataUltimaTroca", t)}
-            /> */}
+            <View style={styles.switchRow}>
+              <Switch
+                value={formData.manutencoes.filtroCombustivel}
+                onValueChange={() => toggleManutencao("filtroCombustivel")}
+                trackColor={{ false: "#adaaaa", true: "#8a0194" }}
+                thumbColor={"#8a0194"}
+              />
+              <Text style={styles.switchLabel}>Filtro de combustível</Text>
+            </View>
 
-            <Text style={styles.label}>Responsável</Text>
-            <TextInput
-              placeholder="Nome do responsável"
-              placeholderTextColor="#9CA3AF"
-              style={styles.input}
-              value={formData.responsavel}
-              onChangeText={(t) => handleChange("responsavel", t)}
-            />
+            <View style={styles.switchRow}>
+              <Switch
+                value={formData.manutencoes.filtroAr}
+                onValueChange={() => toggleManutencao("filtroAr")}
+                trackColor={{ false: "#adaaaa", true: "#8a0194" }}
+                thumbColor={"#8a0194"}
+              />
+              <Text style={styles.switchLabel}>Filtro de ar</Text>
+            </View>
+
+            <View style={styles.switchRow}>
+              <Switch
+                value={formData.manutencoes.engraxamento}
+                onValueChange={() => toggleManutencao("engraxamento")}
+                trackColor={{ false: "#adaaaa", true: "#8a0194" }}
+                thumbColor={"#8a0194"}
+              />
+              <Text style={styles.switchLabel}>Engraxamento</Text>
+            </View>
           </View>
 
           <TouchableOpacity
@@ -171,16 +180,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   card: {
-    backgroundColor: "rgba(255,255,255,0.05)",
-    padding: 16,
-    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    padding: 14,
+    borderRadius: 12,
     gap: 8,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
+    borderColor: "rgba(255,255,255,0.06)",
   },
   label: {
     color: "#d0e9f3",
@@ -188,14 +193,24 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   input: {
-    height: 40,
-    borderRadius: 10,
+    height: 42,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-    paddingHorizontal: 12,
+    borderColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 10,
     color: "#fff",
-    backgroundColor: "rgba(255,255,255,0.1)",
-    fontSize: 12,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    fontSize: 14,
+  },
+  switchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 0,
+    gap: 2,
+  },
+  switchLabel: {
+    color: "#d0e9f3",
+    fontSize: 14,
   },
   button: {
     flexDirection: "row",
@@ -204,11 +219,7 @@ const styles = StyleSheet.create({
     height: 50,
     backgroundColor: "#5900b0",
     borderRadius: 12,
-    shadowColor: "#5900b0",
-    shadowOpacity: 0.4,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 6,
-    elevation: 6,
+    marginTop: 6,
     gap: 8,
   },
   buttonText: {
