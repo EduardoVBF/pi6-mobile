@@ -91,12 +91,12 @@ export default function Login() {
           </TouchableOpacity>
 
           {/* Rodapé */}
-          <View style={styles.footer}>
+          {/* <View style={styles.footer}>
             <Text style={styles.footerText}>Não tem uma conta?</Text>
             <TouchableOpacity onPress={() => router.push("/home")}>
               <Text style={styles.registerLink}>Crie uma conta</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </KeyboardAvoidingView>
     </LinearGradient>
