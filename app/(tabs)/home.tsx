@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import useSession from "@/hooks/useSession";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -18,8 +19,10 @@ export default function HomeScreen() {
     navigation.navigate("manutencao" as never);
   };
 
-  const handleLogout = () => {
-    // use the Expo Router to go back to the root login page
+  const { logout } = useSession();
+
+  const handleLogout = async () => {
+    await logout();
     router.replace("/");
   };
 

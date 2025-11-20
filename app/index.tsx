@@ -8,23 +8,55 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import api from "@/constants/api";
+import { useSession } from "@/hooks/useSession";
 
 export default function Login() {
   const router = useRouter();
+  const { login } = useSession();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Preencha os campos", "Informe e-mail e senha");
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const response = await api.post("/api/v1/auth/login", {
+        email,
+        password,
+      });
+
+      const { access_token } = response.data;
+
+      // salva a sessão
+      await login({
+        accessToken: access_token,
+        user: { email },
+      });
+
       router.replace("/home");
-    }, 1000);
+    } catch (error: any) {
+      console.log("Login error:", error?.response?.data || error);
+
+      if (error.response?.status === 401) {
+        Alert.alert("Credenciais inválidas", "E-mail ou senha incorretos");
+      } else {
+        Alert.alert("Erro", "Não foi possível fazer login");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,7 +69,6 @@ export default function Login() {
         style={{ flex: 1, justifyContent: "center" }}
       >
         <View style={styles.card}>
-          {/* Logo e título */}
           <View style={styles.header}>
             <Text style={styles.title}>FROTINIX</Text>
             <Text style={styles.subtitle}>
@@ -45,7 +76,6 @@ export default function Login() {
             </Text>
           </View>
 
-          {/* Campos */}
           <View style={styles.form}>
             <View style={styles.inputContainer}>
               <Ionicons name="mail-outline" size={20} color="#aaa" />
@@ -73,7 +103,6 @@ export default function Login() {
             </View>
           </View>
 
-          {/* Botão */}
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
@@ -89,14 +118,6 @@ export default function Login() {
               </>
             )}
           </TouchableOpacity>
-
-          {/* Rodapé */}
-          {/* <View style={styles.footer}>
-            <Text style={styles.footerText}>Não tem uma conta?</Text>
-            <TouchableOpacity onPress={() => router.push("/home")}>
-              <Text style={styles.registerLink}>Crie uma conta</Text>
-            </TouchableOpacity>
-          </View> */}
         </View>
       </KeyboardAvoidingView>
     </LinearGradient>
@@ -115,10 +136,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.1)",
-    shadowColor: "#000",
-    shadowOpacity: 0.4,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 8,
   },
   header: {
     alignItems: "center",
@@ -162,11 +179,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#8a0194",
     borderRadius: 12,
     marginTop: 24,
-    shadowColor: "#8a0194",
-    shadowOpacity: 0.5,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 6,
-    elevation: 8,
     gap: 8,
   },
   buttonText: {
@@ -176,18 +188,5 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.7,
-  },
-  footer: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-  footerText: {
-    color: "#d0e9f3",
-    fontSize: 14,
-  },
-  registerLink: {
-    color: "#c54aff",
-    fontWeight: "600",
-    marginTop: 6,
   },
 });
